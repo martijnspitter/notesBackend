@@ -1,4 +1,5 @@
 const User = require('../../models/user');
+const { projects } = require('./mergeHelpers');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -16,7 +17,15 @@ module.exports = {
 				throw new Error('Wrong email or password!');
 			}
 			const token = jwt.sign({ userId: user.id, email: user.email }, TOKEN_KEY, { expiresIn: '12hr' });
-			return { userId: user.id, email: user.email, username: user.username, token: token, tokenExpiration: 1 };
+			return {
+				userId: user.id,
+				email: user.email,
+				username: user.username,
+				token: token,
+				tokenExpiration: 1,
+				projects: projects.bind(this, user.projects),
+				createdProjects: projects.bind(this, user.createdProjects)
+			};
 		} catch (err) {
 			console.log(err);
 			throw err;
@@ -44,6 +53,21 @@ module.exports = {
 				password: null,
 				_id: result.id
 			};
+		} catch (err) {
+			throw err;
+		}
+	},
+	users: async () => {
+		try {
+			const users = await User.find().lean();
+
+			return users.map(async (user) => {
+				return {
+					_id: user._id,
+					username: user.username,
+					projects: projects.bind(this, user.projects)
+				};
+			});
 		} catch (err) {
 			throw err;
 		}

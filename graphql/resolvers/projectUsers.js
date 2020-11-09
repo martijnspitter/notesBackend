@@ -5,9 +5,12 @@ const { dateToString } = require('../../helpers/date');
 const { user, singleProject } = require('./mergeHelpers');
 
 module.exports = {
-	projectusers: async () => {
+	projectusers: async (args, req) => {
+		if (!req.isAuth) {
+			throw new Error('You are not allowed to create a Project');
+		}
 		try {
-			const projectusers = await ProjectUsers.find().lean();
+			const projectusers = await ProjectUsers.find({ project: args.projectId }).lean();
 			return projectusers.map((projectuser) => {
 				return {
 					...projectuser,

@@ -14,7 +14,9 @@ const projects = async (projectIds) => {
 				...project,
 				creator: user.bind(this, project.creator),
 				createdAt: dateToString(project.createdAt),
-				updatedAt: dateToString(project.updatedAt)
+				updatedAt: dateToString(project.updatedAt),
+				users: users.bind(this, project.users),
+				notes: notes.bind(this, project.notes)
 			};
 		});
 	} catch (err) {
@@ -70,9 +72,9 @@ const singleNote = async (noteId) => {
 	}
 };
 
-const items = async (itemIds) => {
+const items = async (itemIds, sortBy) => {
 	try {
-		const items = await Item.find({ _id: { $in: itemIds } }).lean();
+		const items = await Item.find({ _id: { $in: itemIds } }).sort(sortBy).lean();
 
 		return items.map(async (item) => {
 			return {
@@ -114,8 +116,27 @@ const user = async (userId) => {
 			...user,
 			password: null,
 			createdProjects: projects.bind(this, user.createdProjects),
-			createdNotes: notes.bind(this, user.createdNotes)
+			createdNotes: notes.bind(this, user.createdNotes),
+			projects: projects.bind(this, user.projects)
 		};
+	} catch (err) {
+		throw err;
+	}
+};
+
+const users = async (userIds) => {
+	try {
+		const users = await User.find({ _id: { $in: userIds } }).lean();
+
+		return users.map(async (user) => {
+			return {
+				...user,
+				password: null,
+				createdProjects: projects.bind(this, user.createdProjects),
+				createdNotes: notes.bind(this, user.createdNotes),
+				projects: projects.bind(this, user.projects)
+			};
+		});
 	} catch (err) {
 		throw err;
 	}
@@ -125,6 +146,7 @@ exports.projects = projects;
 exports.singleProject = singleProject;
 exports.notes = notes;
 exports.user = user;
+exports.users = users;
 exports.todos = todos;
 exports.items = items;
 exports.singleNote = singleNote;

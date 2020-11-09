@@ -18,6 +18,10 @@ const noteSchema = new Schema(
 			type: Schema.Types.ObjectId,
 			ref: 'User'
 		},
+		position: {
+			type: Number,
+			required: true
+		},
 		project: {
 			type: Schema.Types.ObjectId,
 			ref: 'Project'

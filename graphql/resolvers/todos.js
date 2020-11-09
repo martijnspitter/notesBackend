@@ -62,9 +62,6 @@ module.exports = {
 		}
 	},
 	editTodo: async (args, req) => {
-		if (!req.isAuth) {
-			throw new Error('You are not allowed see the items for this project');
-		}
 		try {
 			const update = {
 				text: args.input.text,
